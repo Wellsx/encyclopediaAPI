@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "4287f700-cf01-4785-928f-ef188c1b95fe",
+		"name": "Encyclopedia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22138681"
+	},
+	"item": [
+		{
+			"name": "Home Page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"All Pages list is displayed\", function (){\r",
+							"     pm.expect(pm.response.text()).to.include(\"All Pages\")\r",
+							"})\r",
+							"\r",
+							"var is200Response = responseCode.code === 200;\r",
+							"\r",
+							"tests['Response code is 200 OK'] = is200Response;\r",
+							"\r",
+							"if(is200Response){\r",
+							"    \r",
+							"    const $ = cheerio.load(pm.response.text());\r",
+							"    console.log($(\"h1\").text())\r",
+							"    console.log($(\"ul\").text())}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}",
+					"host": [
+						"{{URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New Page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Create New Page form is loaded\", function(){\r",
+							"      const $ = cheerio.load(pm.response.text());\r",
+							"      pm.expect(pm.response.text()).to.include('form')\r",
+							"      console.log($('form').text())\r",
+							"});\r",
+							"\r",
+							"var csrftoken = postman.getResponseCookie(\"csrftoken\");\r",
+							"postman.setEnvironmentVariable(\"csrftoken\", csrftoken.value);\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/create/",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Duplicate document does not exist\", function (){\r",
+							"    pm.expect(pm.response.text()).to.not.include(\"Document already exist\")\r",
+							"})\r",
+							"pm.test(\"Body includes string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include\r",
+							"    (pm.environment.get(\"content\"));\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrftoken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "{{title}}",
+							"type": "text"
+						},
+						{
+							"key": "content",
+							"value": "{{content}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{URL}}/create/",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Random Page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var is200Response = responseCode.code === 200;\r",
+							"\r",
+							"tests['Response code is 200 OK'] = is200Response;\r",
+							"\r",
+							"if(is200Response){\r",
+							"    \r",
+							"    const $ = cheerio.load(pm.response.text());\r",
+							"    console.log($(\"title\").text())\r",
+							"    console.log($(\"p\").text())}\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/rand-search/",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"rand-search",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var is200Response = responseCode.code === 200;\r",
+							"var is404Response = responseCode.code === 404;\r",
+							"pm.test('Check status code', function(){\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 404])\r",
+							"    \r",
+							"})\r",
+							"pm.test('Response message', function(){\r",
+							"if(is200Response){\r",
+							"    const $ = cheerio.load(pm.response.text())\r",
+							"    pm.expect($(\"title\").text()).to.contain(pm.environment.get(\"search\"))\r",
+							"    console.log($(\"title\").text())\r",
+							"}\r",
+							"\r",
+							"if(is404Response){\r",
+							"    const $ = cheerio.load(pm.response.text());\r",
+							"    console.log($(\"#error\").text()) \r",
+							"}\r",
+							"\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/search/?q={{search}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{search}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}
